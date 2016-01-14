@@ -1,17 +1,25 @@
+#encoding:utf-8
+
+from flask import render_template
 from app import app
 
 @app.route('/')
 @app.route('/index')
 def index():
 	user = {'nickname' : 'Victor'}
-	return '''
+	posts = [
+		{
+			'author': {'nickname': 'Felipe'},
+			'body': 'O trabalho no McDonalds esta muito bom!'
+		},
+		{
+			'author': {'nickname': 'Pedro'},
+			'body': 'Respeitem minha historia nas brigas de rua!'
+		},
+		{
+			'author': {'nickname': 'Matheus Martins'},
+			'body': 'Alguem disse anime?'
+		}
+	]
 
-<html>
-	<head>
-		<title>Home Page</title>
-	</head>
-	<body>
-		<h1>Hello, ''' + user['nickname'] + '''</h1>
-	</body>
-</html>
-'''
+	return render_template('index.html', user=user, title='Vapo', posts=posts)
