@@ -8,7 +8,7 @@ def load_user(id):
 	return User.query.get(int(id))
 
 @app.route('/')
-@app.route('/index')
+@app.route('/index', methods=['GET', 'POST'])
 def index():
 	user = {'nickname': 'Victor'}
 	posts = [
@@ -25,5 +25,10 @@ def index():
 			'body': 'Alguem disse anime?'
 		}
 	]
+	return render_template('index.html', title='Novo post adicionado!', user=user, posts=posts)
+	# posts.append({
+	# 	'author': {'nickname': request.form['name']},
+	# 	'body': request.form['post']
+	# })
 
-	return render_template('index.html', user=user, title='Vapo', posts=posts)
+
