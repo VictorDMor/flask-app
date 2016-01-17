@@ -5,7 +5,7 @@
 	<div><p>{{ post.author.nickname }} diz: <b>{{ post.body }}</b></p></div>
 	{% endfor %}
 	<hr>
-	<form method='GET'>
+	<form action='/index' method='GET'>
 	Adicionar um novo post: <br />
 	Nome: <input type='text' name='name' value=''><br />
 	Post: <input type='textarea' name='post'><br/><br/>
