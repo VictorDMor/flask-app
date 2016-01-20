@@ -1,11 +1,9 @@
 {% extends "base.html" %}
 {% block content %}
-	<h1>Cadastro de usuário</h1>
+	<h1>Login</h1>
 	<form action='/signup' method='POST'>
-	Nome: <input type='text' name='nickname' value=''><br />
 	E-mail:<input type='text' name='email'><br />
 	Senha:<input type='password' name='pword'><br /><br />
-	<input type='submit' name='signup' value='Cadastrar!'>
+	<input type='submit' name='signup' value='Logar!'>
 	</form>
 {% endblock %}
-	
