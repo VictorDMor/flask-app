@@ -5,25 +5,31 @@ from app import app, db, models
 from flask.ext.wtf import Form
 from .forms import LoginForm
 from models import User
-from flask.ext.login import LoginManager
-lm = LoginManager()
+import flask.ext.login as flask_login
+from flask.ext.security import login_required
+lm = flask_login.LoginManager()
+lm.init_app(app)
 
-def load_user(id):
-	return User.query.get(int(id))
+@lm.user_loader
+def user_loader(id):
+	return User.query.get(id)
+
 
 posts = []
 @app.route('/')
 @app.route('/index', methods=['GET', 'POST'])
 def index():
-	user = {'nickname': 'Victor'}
+	print authenticated
 	if len(request.args) != 0:
 		posts.append({
 	 		'author': {'nickname': request.args['name']},
 			'body': request.args['post']
 		})
-		return render_template('index.html', title='Novo post adicionado!', user=user, posts=posts)
+		return render_template('index.html', title='Novo post adicionado!', posts=posts)
 	else:
-		return render_template('index.html', title='Novo post adicionado!', user=user, posts=posts)
+		if authenticated:
+			flash('Usuario logado!')
+		return render_template('index.html', title='Novo post adicionado!', posts=posts)
 
 @app.route('/signup', methods=['GET', 'POST'])
 def sign():
@@ -39,15 +45,31 @@ def sign():
 @app.route('/login', methods=['GET', 'POST'])
 def login():
 	form = LoginForm()
-	if form.validate_on_submit():
-		user = User.query.get(form.email.data)
+	if form.email.data is not None and form.pword.data is not None:
+		user = User.query.filter_by(email=form.email.data).first()
 		if user:
-			if bcrypt.check_password_hash(user.pw, form.pword.data):
+			if user.pw == form.pword.data:
+				lm.login_view = 'login'
 				user.authenticated = True
 				db.session.add(user)
 				db.session.commit()
-				login_user(user, remember=True)
+				flask_login.login_user(user)
 				return redirect(url_for('index'))
- 	return render_template('login.html', title='Login de usuario')
+			else:
+				flash('Senha incorreta!')
+				return render_template('login.html', title='Login de usuario')
+	return render_template('login.html', title='Login de usuario')
+
+@app.route('/logout', methods=['GET', 'POST'])
+@login_required
+def logout():
+	''' Faz logout do usuário '''
+	user = current_user
+	user.authenticated = False
+	db.session.add(user)
+	db.session.commit()
+	logout_user()
+	return render_template('index.html', title='Logout feito com sucesso!')
+
  		
 
