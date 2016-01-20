@@ -27,9 +27,8 @@ def sign():
 		u = models.User(nickname=request.form['nickname'], email=request.form['email'], pw=request.form['pword'])
 		db.session.add(u)
 		db.session.commit()
-		flash('Usuário cadastrado com sucesso!')
+		flash('Usuario cadastrado com sucesso!')
 		return render_template('signup.html', title='Cadastro de usuario')
 	else:
-		print 'não entrou'
 		return render_template('signup.html', title='Cadastro de usuario')
 

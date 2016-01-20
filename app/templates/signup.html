@@ -7,5 +7,8 @@
 	Senha:<input type='password' name='pword'><br /><br />
 	<input type='submit' name='signup' value='Cadastrar!'>
 	</form>
+	{% if u %}
+		Usuário cadastrado com sucesso!
+	{% endif %}
 {% endblock %}
 	
