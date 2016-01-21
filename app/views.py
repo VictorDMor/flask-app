@@ -19,7 +19,6 @@ posts = []
 @app.route('/')
 @app.route('/index', methods=['GET', 'POST'])
 def index():
-	print authenticated
 	if len(request.args) != 0:
 		posts.append({
 	 		'author': {'nickname': request.args['name']},
@@ -27,8 +26,6 @@ def index():
 		})
 		return render_template('index.html', title='Novo post adicionado!', posts=posts)
 	else:
-		if authenticated:
-			flash('Usuario logado!')
 		return render_template('index.html', title='Novo post adicionado!', posts=posts)
 
 @app.route('/signup', methods=['GET', 'POST'])
@@ -54,21 +51,22 @@ def login():
 				db.session.add(user)
 				db.session.commit()
 				flask_login.login_user(user)
-				return redirect(url_for('index'))
+				flask_login.current_user = user
+				return render_template('index.html', title='Usuario logado!')
 			else:
 				flash('Senha incorreta!')
 				return render_template('login.html', title='Login de usuario')
 	return render_template('login.html', title='Login de usuario')
 
 @app.route('/logout', methods=['GET', 'POST'])
-@login_required
 def logout():
 	''' Faz logout do usuário '''
-	user = current_user
+	user = flask_login.current_user
 	user.authenticated = False
 	db.session.add(user)
 	db.session.commit()
-	logout_user()
+	flask_login.logout_user()
+	db.session.expunge(user)
 	return render_template('index.html', title='Logout feito com sucesso!')
 
  		
