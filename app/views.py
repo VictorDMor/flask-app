@@ -26,7 +26,7 @@ def index():
 		})
 		return render_template('index.html', title='Novo post adicionado!', posts=posts)
 	else:
-		return render_template('index.html', title='Novo post adicionado!', posts=posts)
+		return render_template('index.html', title='Bem-vindo!', posts=posts)
 
 @app.route('/signup', methods=['GET', 'POST'])
 def sign():

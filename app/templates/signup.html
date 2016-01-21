@@ -1,11 +1,17 @@
 {% extends "base.html" %}
 {% block content %}
-	<h1>Cadastro de usuário</h1>
-	<form action='/signup' method='POST'>
-	Nome: <input type='text' name='nickname' value=''><br />
-	E-mail:<input type='text' name='email'><br />
-	Senha:<input type='password' name='pword'><br /><br />
-	<input type='submit' name='signup' value='Cadastrar!'>
-	</form>
+	<div class='container'>
+		<div class='row'>
+			<h4>Cadastro de usuário</h4>
+			<form action='/signup' method='POST'>
+			<div class='form-group'>
+				Nome: <input type='text' class='form-control' name='nickname' value=''><br />
+				E-mail:<input type='text' class='form-control' name='email'><br />
+				Senha:<input type='password' class='form-control' name='pword'><br /><br />
+			</div>
+			<input type='submit' name='signup' value='Cadastrar!'>
+			</form>
+		</div>
+	</div>
 {% endblock %}
 	
