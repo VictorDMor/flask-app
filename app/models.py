@@ -1,35 +1,35 @@
+#encoding: utf-8
+
 from app import db
+from flask.ext.login import LoginManager
+lm = LoginManager()
 
 class User(db.Model):
 	id = db.Column(db.Integer, primary_key = True)
 	nickname = db.Column(db.String(64), index=True, unique=True)
 	email = db.Column(db.String(120), index=True, unique=True)
 	posts = db.relationship('Post', backref='author', lazy='dynamic')
+	pw = db.Column(db.String(64), index=True, unique=True)
+	authenticated = db.Column(db.Boolean, index=True, unique=True)
 
-	def __repr__(self):
-		return '<User %r>' % (self.nickname)
-
-	@property
-	def is_authenticated(self):
-	    return True
-
-	@property
 	def is_active(self):
-	    return True
+		return True
 
-	@property
-	def is_anonymous(self):
-		return False
-	
 	def get_id(self):
-		try:
-			return unicode(self.id)
-		except NameError:
-			return str(self.id)
+		''' Retorna o e-mail do usuario '''
+		return self.email
+
+	def is_authenticated(self):
+		''' True se o usuário estiver autenticado '''
+		return self.authenticated
 
 	def __repr__(self):
 		return '<User %r>' % (self.nickname)
-	
+
+	@lm.user_loader
+	def user_loader(user_id):
+		''' Dado o id do usuário, retornar o objeto Usuário correspondente '''
+		return User.query.get(user_id)
 
 class Post(db.Model):
 	id = db.Column(db.Integer, primary_key=True)

@@ -1,73 +1,73 @@
 #encoding:utf-8
 
 from flask import render_template, flash, redirect, session, url_for, request, g
-from flask.ext.login import login_user, logout_user, current_user, login_required
-from app import app, db, lm, oid
+from app import app, db, models
+from flask.ext.wtf import Form
 from .forms import LoginForm
-from .models import User
+from models import User
+import flask.ext.login as flask_login
+from flask.ext.security import login_required
+lm = flask_login.LoginManager()
+lm.init_app(app)
 
 @lm.user_loader
-def load_user(id):
-	return User.query.get(int(id))
+def user_loader(id):
+	return User.query.get(id)
 
+
+posts = []
 @app.route('/')
-@app.route('/index')
-@login_required
+@app.route('/index', methods=['GET', 'POST'])
 def index():
-	user = g.user
-	posts = [
-		{
-			'author': {'nickname': 'Felipe'},
-			'body': 'O trabalho no McDonalds esta muito bom!'
-		},
-		{
-			'author': {'nickname': 'Pedro'},
-			'body': 'Respeitem minha historia nas brigas de rua!'
-		},
-		{
-			'author': {'nickname': 'Matheus Martins'},
-			'body': 'Alguem disse anime?'
-		}
-	]
+	if len(request.args) != 0:
+		posts.append({
+	 		'author': {'nickname': request.args['name']},
+			'body': request.args['post']
+		})
+		return render_template('index.html', title='Novo post adicionado!', posts=posts)
+	else:
+		return render_template('index.html', title='Novo post adicionado!', posts=posts)
 
-	return render_template('index.html', user=user, title='Vapo', posts=posts)
+@app.route('/signup', methods=['GET', 'POST'])
+def sign():
+	if len(request.form) != 0:
+		u = models.User(nickname=request.form['nickname'], email=request.form['email'], pw=request.form['pword'], authenticated=False)
+		db.session.add(u)
+		db.session.commit()
+		flash('Usuario cadastrado com sucesso!')
+		return render_template('signup.html', title='Cadastro de usuario')
+	else:
+		return render_template('signup.html', title='Cadastro de usuario')
 
 @app.route('/login', methods=['GET', 'POST'])
-@oid.loginhandler
 def login():
-	if g.user is not None and g.user.is_authenticated:
-		return redirect(url_for('index'))
 	form = LoginForm()
-	if form.validate_on_submit():
-		session['remember_me'] = form.remember_me.data
-		return oid.try_login(form.openid.data, ask_for=['nickname', 'email'])
-	return render_template('login.html', title='Sign In', form=form, providers=app.config['OPENID_PROVIDERS'])	
+	if form.email.data is not None and form.pword.data is not None:
+		user = User.query.filter_by(email=form.email.data).first()
+		if user:
+			if user.pw == form.pword.data:
+				lm.login_view = 'login'
+				user.authenticated = True
+				db.session.add(user)
+				db.session.commit()
+				flask_login.login_user(user)
+				flask_login.current_user = user
+				return render_template('index.html', title='Usuario logado!')
+			else:
+				flash('Senha incorreta!')
+				return render_template('login.html', title='Login de usuario')
+	return render_template('login.html', title='Login de usuario')
 
-@oid.after_login
-	def after_login(resp):
-		if resp.email is None or resp.email == "":
-			flash('Login invalido. Por favor tente novamente')
-			return redirect(url_for('login'))
-		user = User.query.filter_by(email=resp.email).first()
-		if user is None:
-			nickname = resp.nickname
-			if nickname is None or nickname == "":
-				nickname = resp.email.split('@')[0]
-			user = User(nickname=nickname, email=resp.email)
-			db.session.add(user)
-			db.session.commit()
-		remember_me = False
-		if 'remember_me' in session:
-			remember_me = session['remember_me']
-			session.pop('remember_me', None)
-		login_user(user, remember = remember_me)
-		return redirect(request.args.get('next') or url_for('index'))
-
-@app.before_request
-	def before_request():
-		g.user = current_user
-
-@app.route('/logout')
+@app.route('/logout', methods=['GET', 'POST'])
 def logout():
-	logout_user()
-	return redirect(url_for('index'))
+	''' Faz logout do usuário '''
+	user = flask_login.current_user
+	user.authenticated = False
+	db.session.add(user)
+	db.session.commit()
+	flask_login.logout_user()
+	db.session.expunge(user)
+	return render_template('index.html', title='Logout feito com sucesso!')
+
+ 		
+

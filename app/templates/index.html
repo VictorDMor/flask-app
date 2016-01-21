@@ -1,7 +1,14 @@
 {% extends "base.html" %}
 {% block content %}
-	<h1> Hello, {{ user.nickname }}</h1>
+	<h1> Olá, Victor</h1>
 	{% for post in posts %}
 	<div><p>{{ post.author.nickname }} diz: <b>{{ post.body }}</b></p></div>
 	{% endfor %}
+	<hr>
+	<form action='/index' method='GET'>
+	Adicionar um novo post: <br />
+	Nome: <input type='text' name='name' value=''><br />
+	Post: <input type='textarea' name='post'><br/><br/>
+	<input type='submit' name='submit' value='Postar!'>
+	</form>
 {% endblock %}
