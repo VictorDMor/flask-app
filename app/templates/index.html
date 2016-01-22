@@ -1,22 +1,25 @@
 {% extends "base.html" %}
 {% block content %}
 	{% for post in posts %}
-	<div><p>{{ post.author.nickname }} diz: <b>{{ post.body }}</b></p></div>
+	<div><p>{{ post.body }} diz: <b>{{ post.body }}</b></p></div>
 	{% endfor %}
 	<form action='/index' method='GET'>
-	<div class='container'>
 		<div class='row'>
+	<div class='container'>
 			<div class='col-md-4'>
-				<h4>Adicionar um novo post:</h4>
+				<h4>Novo post:</h4>
+				{% if authenticated %}
 				<div class='form-group'>
 					<label for='usr'>Nome:</label> 
-					<input type='text' class='form-control' name='name' value='' id='usr'>
+					{{ user.nickname }}
 				</div>
-
 				<div class='form-group'>
 					<label for='post'>Post:</label> 
 					<textarea class ='form-control' rows='3' name='post' id='post'></textarea></div>
-				<input type='submit' name='submit' value='Postar!'>
+				<input type='submit' name='submit' class='btn btn-success' value='Postar!'>
+				{% else %}
+				<h5>Você precisa estar logado para postar!</h5>
+				{% endif %}
 			</div>
 		</div>
 	</div>

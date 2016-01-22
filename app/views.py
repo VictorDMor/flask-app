@@ -14,19 +14,21 @@ lm.init_app(app)
 def user_loader(id):
 	return User.query.get(id)
 
+authenticated = False
 
 posts = []
 @app.route('/')
 @app.route('/index', methods=['GET', 'POST'])
 def index():
 	if len(request.args) != 0:
-		posts.append({
-	 		'author': {'nickname': request.args['name']},
-			'body': request.args['post']
-		})
-		return render_template('index.html', title='Novo post adicionado!', posts=posts)
+		user = flask_login.current_user
+		p = models.Post(body=request.args['post'], id=user.id)
+		db.session.add(p)
+		db.session.commit()
+		flash('Post adicionado com sucesso!')
+		return render_template('index.html', title='Novo post adicionado!', posts=posts, authenticated=authenticated, user=user)
 	else:
-		return render_template('index.html', title='Bem-vindo!', posts=posts)
+		return render_template('index.html', title='Bem-vindo!', posts=posts, authenticated=authenticated)
 
 @app.route('/signup', methods=['GET', 'POST'])
 def sign():
@@ -48,11 +50,12 @@ def login():
 			if user.pw == form.pword.data:
 				lm.login_view = 'login'
 				user.authenticated = True
+				authenticated = True
 				db.session.add(user)
 				db.session.commit()
 				flask_login.login_user(user)
 				flask_login.current_user = user
-				return render_template('index.html', title='Usuario logado!')
+				return render_template('index.html', title='Usuario logado!', authenticated=authenticated, user=user)
 			else:
 				flash('Senha incorreta!')
 				return render_template('login.html', title='Login de usuario')
@@ -66,6 +69,7 @@ def logout():
 		return render_template('login.html', title='Voce precisa logar primeiro!')
 	else:
 		user.authenticated = False
+		authenticated = False
 		db.session.add(user)
 		db.session.commit()
 		flask_login.logout_user()
