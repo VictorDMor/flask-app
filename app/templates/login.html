@@ -1,9 +1,19 @@
 {% extends "base.html" %}
 {% block content %}
-	<h1>Login</h1>
-	<form action='/login' method='POST'>
-	E-mail:<input type='text' name='email'><br />
-	Senha:<input type='password' name='pword'><br /><br />
-	<input type='submit' name='log' value='Logar!'>
-	</form>
+	<div class='container'>
+		<div class='row'>
+			<div class='col-md-4'>
+				<h4>Login</h4>
+				<form action='/login' method='POST'>
+				<div class='form-group'>
+					E-mail:<input type='text' class='form-control' name='email'><br />
+				</div>
+				<div class='form-group'>
+					Senha:<input type='password' class='form-control' name='pword'><br /><br />
+				</div>
+				<input type='submit' name='log' value='Logar!'>
+				</form>
+			</div>
+		</div>
+	</div>
 {% endblock %}

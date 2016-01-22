@@ -62,12 +62,15 @@ def login():
 def logout():
 	''' Faz logout do usuário '''
 	user = flask_login.current_user
-	user.authenticated = False
-	db.session.add(user)
-	db.session.commit()
-	flask_login.logout_user()
-	db.session.expunge(user)
-	return render_template('index.html', title='Logout feito com sucesso!')
+	if user.is_authenticated is False:
+		return render_template('login.html', title='Voce precisa logar primeiro!')
+	else:
+		user.authenticated = False
+		db.session.add(user)
+		db.session.commit()
+		flask_login.logout_user()
+		db.session.expunge(user)
+		return render_template('index.html', title='Logout feito com sucesso!')
 
  		
 
